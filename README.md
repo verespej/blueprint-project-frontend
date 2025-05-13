@@ -9,6 +9,10 @@ npm install
 npm run dev
 ```
 
+## TODO:
+
+- There's some redundancy and some refactoring could be beneficial - however, better to wait until sufficient repetition versus premature optimization
+
 ## UX
 
 1. Direct the patient through each assessment question one by one, displaying only one question at a time

@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 import { AssignAssessmentDialog } from '#src/components/AssignAssessmentDialog';
-import { AssessmentAssignmentsTable } from '#src/components/AssessmentAssignmentsTable';
+import { ProviderAssignmentsTable } from '#src/components/ProviderAssignmentsTable';
 import {
-  getFetchKeyForLoadAssessmentAssignments,
+  getFetchKeyForLoadAssignments,
   useAssessmentsStore,
 } from '#src/stores/assessments-store';
 import { useAuthStore } from '#src/stores/auth-store';
@@ -19,9 +19,9 @@ export function PatientManager() {
 
   const {
     assessmentAssignmentsById,
-    errorMessageByFetchKeyForLoadAssessmentAssignments,
-    fetchStatusByFetchKeyForLoadAssessmentAssignments,
-    loadAssessmentAssignments,
+    errorMessageByFetchKeyForLoadAssignments,
+    fetchStatusByFetchKeyForLoadAssignments,
+    loadAssignments,
   } = useAssessmentsStore();
   const {
     errorMessage: errorMessageForLoadPatients,
@@ -39,9 +39,9 @@ export function PatientManager() {
 
   useEffect(() => {
     if (providerId && patientId) {
-      loadAssessmentAssignments(providerId, patientId);
+      loadAssignments(providerId, patientId);
     }
-  }, [loadAssessmentAssignments, patientId, providerId]);
+  }, [loadAssignments, patientId, providerId]);
 
   const patient = patientId ? patientsById[patientId] : undefined;
 
@@ -71,9 +71,9 @@ export function PatientManager() {
   const onClickAssignAssessment = () => setIsAssignDialogOpen(true);
   const onCloseAssignDialog = () => setIsAssignDialogOpen(false);
 
-  const assignmentsFetchKey = getFetchKeyForLoadAssessmentAssignments(providerId, patientId);
-  const errorMessageForLoadAssignments = errorMessageByFetchKeyForLoadAssessmentAssignments[assignmentsFetchKey];
-  const statusForLoadAssignments = fetchStatusByFetchKeyForLoadAssessmentAssignments[assignmentsFetchKey];
+  const assignmentsFetchKey = getFetchKeyForLoadAssignments(providerId, patientId);
+  const errorMessageForLoadAssignments = errorMessageByFetchKeyForLoadAssignments[assignmentsFetchKey];
+  const statusForLoadAssignments = fetchStatusByFetchKeyForLoadAssignments[assignmentsFetchKey];
   const assignments: TypAssessmentAssignment[] = Object.values(assessmentAssignmentsById).filter(
     (assignment: TypAssessmentAssignment) => {
       return assignment.providerId === providerId && assignment.patientId === patientId;
@@ -117,11 +117,11 @@ export function PatientManager() {
         {statusForLoadAssignments === FETCH_STATUSES.PENDING && 'Loading...'}
         {errorMessageForLoadAssignments && (
           <div className="space-y-4 text-error">
-            <p className="font-semibold">Error loading patient info:</p>
+            <p className="font-semibold">Error loading patient assignments:</p>
             <p>{errorMessageForLoadPatients}</p>
           </div>
         )}
-        <AssessmentAssignmentsTable assessmentAssignments={assignments} />
+        <ProviderAssignmentsTable assignments={assignments} />
       </section>
     </div>
   );

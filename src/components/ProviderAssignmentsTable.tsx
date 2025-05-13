@@ -2,10 +2,10 @@ import { type TypAssessmentAssignment } from '#src/stores/types';
 import { formatFriendlyDate } from '#src/utils';
 
 interface Props {
-  assessmentAssignments: TypAssessmentAssignment[];
+  assignments: TypAssessmentAssignment[];
 }
 
-export function AssessmentAssignmentsTable({ assessmentAssignments }: Props) {
+export function ProviderAssignmentsTable({ assignments }: Props) {
   const onClickAssignment = (_assignmentId: string) => () => {
     alert('Assignment review coming soon!');
   }
@@ -22,7 +22,7 @@ export function AssessmentAssignmentsTable({ assessmentAssignments }: Props) {
           </tr>
         </thead>
         <tbody>
-          {assessmentAssignments.map((assignment) => (
+          {assignments.map((assignment) => (
             <tr className="cursor-pointer hover:bg-primary"
               key={assignment.id}
               onClick={onClickAssignment(assignment.id)}
@@ -31,7 +31,11 @@ export function AssessmentAssignmentsTable({ assessmentAssignments }: Props) {
                 {assignment.assessmentDisplayName} ({assignment.assessmentFullName})
               </td>
               <td className="border-t px-4 py-2">
-                {formatFriendlyDate(assignment.sentAt)}
+                {
+                  assignment.sentAt
+                  ? formatFriendlyDate(assignment.sentAt)
+                  : 'N/A'
+                }
               </td>
               <td className="border-t px-4 py-2">
                 {

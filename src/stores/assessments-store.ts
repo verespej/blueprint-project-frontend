@@ -18,7 +18,7 @@ import {
   type TypFetchStatus,
 } from './types';
 
-export function getFetchKeyForLoadAssessmentAssignments(
+export function getFetchKeyForLoadAssignments(
   providerId: string,
   patientId: string,
 ): string {
@@ -34,9 +34,13 @@ export interface AssessmentsState {
   fetchStatusesByIdForLoadFullAssessment: Record<string, TypFetchStatus>;
   fullAssessmentsById: Record<string, TypAssessment>;
 
-  errorMessageByFetchKeyForLoadAssessmentAssignments: Record<string, string | null>;
-  fetchStatusByFetchKeyForLoadAssessmentAssignments: Record<string, TypFetchStatus>;
+  errorMessageByFetchKeyForLoadAssignments: Record<string, string | null>;
+  fetchStatusByFetchKeyForLoadAssignments: Record<string, TypFetchStatus>;
   assessmentAssignmentsById: Record<string, TypAssessmentAssignment>;
+
+  errorMessageByIdForLoadAllAssignmentsForPatient: Record<string, string | null>;
+  fetchStatusByIdForLoadAllAssignmentsForPatient: Record<string, TypFetchStatus>;
+  // Note: Updates assessmentAssignmentsById
 
   errorMessageForAssignAssessment: string | null;
   fetchStatusForAssignAssessment: TypFetchStatus;
@@ -44,7 +48,8 @@ export interface AssessmentsState {
 
   loadAssessmentSummaries: (forceReload?: boolean) => Promise<void>;
   loadFullAssessment: (assessmentId: string) => Promise<void>;
-  loadAssessmentAssignments: (providerId: string, patientId: string, forceReload?: boolean) => Promise<void>;
+  loadAssignments: (providerId: string, patientId: string, forceReload?: boolean) => Promise<void>;
+  loadAllAssignmentsForPatient: (patientId: string, forceReload?: boolean) => Promise<void>;
   assignAssessment: (providerId: string, patientId: string, assessmentId: string) => Promise<boolean>;
 }
 
@@ -58,9 +63,13 @@ export const useAssessmentsStore = create<AssessmentsState>()(
     fetchStatusesByIdForLoadFullAssessment: {},
     fullAssessmentsById: {},
 
-    errorMessageByFetchKeyForLoadAssessmentAssignments: {},
-    fetchStatusByFetchKeyForLoadAssessmentAssignments: {},
+    errorMessageByFetchKeyForLoadAssignments: {},
+    fetchStatusByFetchKeyForLoadAssignments: {},
     assessmentAssignmentsById: {},
+
+    errorMessageByIdForLoadAllAssignmentsForPatient: {},
+    fetchStatusByIdForLoadAllAssignmentsForPatient: {},
+    // Note: Updates assessmentAssignmentsById
 
     errorMessageForAssignAssessment: null,
     fetchStatusForAssignAssessment: FETCH_STATUSES.INITIAL,
@@ -141,11 +150,10 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       setStatus(FETCH_STATUSES.COMPLETE);
     },
 
-    loadAssessmentAssignments: async (providerId, patientId, forceReload = false) => {
-      const fetchKey = getFetchKeyForLoadAssessmentAssignments(providerId, patientId);
+    loadAssignments: async (providerId, patientId, forceReload = false) => {
+      const fetchKey = getFetchKeyForLoadAssignments(providerId, patientId);
 
-      const status = get().fetchStatusByFetchKeyForLoadAssessmentAssignments[fetchKey];
-
+      const status = get().fetchStatusByFetchKeyForLoadAssignments[fetchKey];
       if (status === FETCH_STATUSES.PENDING) {
         return;
       }
@@ -160,14 +168,14 @@ export const useAssessmentsStore = create<AssessmentsState>()(
         },
       });
       const setError = (newErrorMsg: string | null) => set({
-        errorMessageByFetchKeyForLoadAssessmentAssignments: {
-          ...get().errorMessageByFetchKeyForLoadAssessmentAssignments,
+        errorMessageByFetchKeyForLoadAssignments: {
+          ...get().errorMessageByFetchKeyForLoadAssignments,
           [fetchKey]: newErrorMsg,
         },
       });
       const setStatus = (newStatus: TypFetchStatus) => set({
-        fetchStatusByFetchKeyForLoadAssessmentAssignments: {
-          ...get().fetchStatusByFetchKeyForLoadAssessmentAssignments,
+        fetchStatusByFetchKeyForLoadAssignments: {
+          ...get().fetchStatusByFetchKeyForLoadAssignments,
           [fetchKey]: newStatus,
         },
       });
@@ -178,6 +186,54 @@ export const useAssessmentsStore = create<AssessmentsState>()(
 
       if (!res.ok) {
         let errorMessage = res.status === StatusCodes.NOT_FOUND || res.status === StatusCodes.FORBIDDEN
+          ? "The requested action isn't permitted"
+          : GENERIC_SYSTEM_ERR_MSG;
+        setError(errorMessage);
+        setStatus(FETCH_STATUSES.ERROR);
+        throw new Error(errorMessage);
+      }
+
+      const payload = await res.json();
+      const assignments: TypAssessmentAssignment[] = payload.data.assessmentInstances;
+      setAssessmentAssignments(assignments);
+      setError(null);
+      setStatus(FETCH_STATUSES.COMPLETE);
+    },
+
+    loadAllAssignmentsForPatient: async (patientId, forceReload = false) => {
+      const status = get().fetchStatusByIdForLoadAllAssignmentsForPatient[patientId];
+      if (status === FETCH_STATUSES.PENDING) {
+        return;
+      }
+      if (status === FETCH_STATUSES.COMPLETE && !forceReload) {
+        return;
+      }
+
+      const setAssessmentAssignments = (additionalAssessmentAssignments: TypAssessmentAssignment[]) => set({
+        assessmentAssignmentsById: {
+          ...get().assessmentAssignmentsById,
+          ...keyBy(additionalAssessmentAssignments, 'id'),
+        },
+      });
+      const setError = (newErrorMsg: string | null) => set({
+        errorMessageByIdForLoadAllAssignmentsForPatient: {
+          ...get().errorMessageByIdForLoadAllAssignmentsForPatient,
+          [patientId]: newErrorMsg,
+        },
+      });
+      const setStatus = (newStatus: TypFetchStatus) => set({
+        fetchStatusByIdForLoadAllAssignmentsForPatient: {
+          ...get().fetchStatusByIdForLoadAllAssignmentsForPatient,
+          [patientId]: newStatus,
+        },
+      });
+
+      setStatus(FETCH_STATUSES.PENDING);
+      const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments`;
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        let errorMessage = res.status === StatusCodes.NOT_FOUND
           ? "The requested action isn't permitted"
           : GENERIC_SYSTEM_ERR_MSG;
         setError(errorMessage);

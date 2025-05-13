@@ -15,7 +15,7 @@ export type TypUserType = typeof USER_TYPES[
   keyof typeof USER_TYPES
 ];
 
-export interface TypUser {
+export type TypUser = {
   email: string;
   familyName: string;
   givenName: string;
@@ -23,7 +23,7 @@ export interface TypUser {
   type: TypUserType;
 }
 
-export interface TypPatient {
+export type TypPatient = {
   email: string;
   familyName: string;
   givenName: string;
@@ -32,7 +32,7 @@ export interface TypPatient {
   onboardedAt: string;
 }
 
-export interface TypAssessmentSummary {
+export type TypAssessmentSummary = {
   displayName: string;
   disorderDisplayName: string;
   fullName: string;
@@ -40,7 +40,7 @@ export interface TypAssessmentSummary {
   name: string;
 }
 
-export interface TypAssessment {
+export type TypAssessment = {
   disorder: string;
   id: string;
   name: string;
@@ -65,14 +65,16 @@ export interface TypAssessment {
   },
 }
 
-export interface TypAssessmentAssignment {
+export type TypAssessmentAssignment = {
   assessmentDisplayName: string;
   assessmentFullName: string;
   assessmentId: string;
   id: string;
   patientId: string;
+  providerFamilyName: string;
+  providerGivenName: string;
   providerId: string;
-  sentAt: string;
+  sentAt: string | null;
   slug: string;
-  submittedAt: string;
+  submittedAt: string | null;
 }
