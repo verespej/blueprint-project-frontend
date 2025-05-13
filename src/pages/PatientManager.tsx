@@ -2,17 +2,30 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 import { AssignAssessmentDialog } from '#src/components/AssignAssessmentDialog';
+import { AssessmentAssignmentsTable } from '#src/components/AssessmentAssignmentsTable';
+import {
+  getFetchKeyForLoadAssessmentAssignments,
+  useAssessmentsStore,
+} from '#src/stores/assessments-store';
 import { useAuthStore } from '#src/stores/auth-store';
 import { FETCH_STATUSES } from '#src/stores/constants';
+import { type TypAssessmentAssignment } from '#src/stores/types';
 import { usePatientsStore } from '#src/stores/patients-store';
 
 export function PatientManager() {
   const { patientId } = useParams<{ patientId: string }>();
 
-  const providerId = useAuthStore((s) => s.user?.id);
+  const providerId = useAuthStore((s) => s.user!.id);
+
   const {
-    errorMessage,
-    fetchStatus,
+    assessmentAssignmentsById,
+    errorMessageByFetchKeyForLoadAssessmentAssignments,
+    fetchStatusByFetchKeyForLoadAssessmentAssignments,
+    loadAssessmentAssignments,
+  } = useAssessmentsStore();
+  const {
+    errorMessage: errorMessageForLoadPatients,
+    fetchStatus: statusForLoadPatients,
     loadPatients,
     patientsById,
   } = usePatientsStore();
@@ -24,32 +37,48 @@ export function PatientManager() {
     }
   }, [loadPatients, providerId]);
 
-  const onClickAssignAssessment = () => setIsAssignDialogOpen(true);
-  const onCloseAssignDialog = () => setIsAssignDialogOpen(false);
+  useEffect(() => {
+    if (providerId && patientId) {
+      loadAssessmentAssignments(providerId, patientId);
+    }
+  }, [loadAssessmentAssignments, patientId, providerId]);
 
   const patient = patientId ? patientsById[patientId] : undefined;
 
-  if (fetchStatus === FETCH_STATUSES.PENDING) {
+  if (statusForLoadPatients === FETCH_STATUSES.PENDING) {
     return (
-      <div className="p-6 text-center">
+      <div className="p-6 space-y-4 text-center">
         Loading...
       </div>
     );
   }
-  if (errorMessage) {
+  if (errorMessageForLoadPatients) {
     return (
-      <div className="p-6 text-red-600">
-        Error loading: {errorMessage}
+      <div className="p-6 space-y-4 text-error">
+        <p className="font-semibold">Error loading patient info:</p>
+        <p>{errorMessageForLoadPatients}</p>
       </div>
     );
   }
-  if (!patient) {
+  if (!patientId || !patient) {
     return (
-      <div className="p-6">
-        <h2 className="text-xl font-semibold">Patient not found</h2>
+      <div className="p-6 space-y-4 text-error">
+        <h1 className="text-4xl font-bold">Patient not found</h1>
       </div>
     );
   }
+
+  const onClickAssignAssessment = () => setIsAssignDialogOpen(true);
+  const onCloseAssignDialog = () => setIsAssignDialogOpen(false);
+
+  const assignmentsFetchKey = getFetchKeyForLoadAssessmentAssignments(providerId, patientId);
+  const errorMessageForLoadAssignments = errorMessageByFetchKeyForLoadAssessmentAssignments[assignmentsFetchKey];
+  const statusForLoadAssignments = fetchStatusByFetchKeyForLoadAssessmentAssignments[assignmentsFetchKey];
+  const assignments: TypAssessmentAssignment[] = Object.values(assessmentAssignmentsById).filter(
+    (assignment: TypAssessmentAssignment) => {
+      return assignment.providerId === providerId && assignment.patientId === patientId;
+    },
+  );
 
   return (
     <div className="p-6 space-y-4">
@@ -84,8 +113,15 @@ export function PatientManager() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-3">Assessments</h2>
-        COMING SOON!
+        <h2 className="text-2xl font-semibold mb-3">Assigned assessments</h2>
+        {statusForLoadAssignments === FETCH_STATUSES.PENDING && 'Loading...'}
+        {errorMessageForLoadAssignments && (
+          <div className="space-y-4 text-error">
+            <p className="font-semibold">Error loading patient info:</p>
+            <p>{errorMessageForLoadPatients}</p>
+          </div>
+        )}
+        <AssessmentAssignmentsTable assessmentAssignments={assignments} />
       </section>
     </div>
   );

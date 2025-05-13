@@ -66,10 +66,13 @@ export interface TypAssessment {
 }
 
 export interface TypAssessmentAssignment {
+  assessmentDisplayName: string;
+  assessmentFullName: string;
   assessmentId: string;
   id: string;
   patientId: string;
   providerId: string;
   sentAt: string;
   slug: string;
+  submittedAt: string;
 }

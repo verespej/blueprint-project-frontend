@@ -1,16 +1,7 @@
 import { useNavigate } from 'react-router';
 
 import { type TypPatient } from '#src/stores/types';
-
-function formatFriendlyDate(isoDateString: string, locale = 'en-US'): string {
-  const date = new Date(isoDateString);
-  const formatter = new Intl.DateTimeFormat(locale, {
-    month: 'long',
-    day:   'numeric',
-    year:  'numeric',
-  });
-  return formatter.format(date);
-}
+import { formatFriendlyDate } from '#src/utils';
 
 interface Props {
   patients: TypPatient[];
@@ -22,7 +13,7 @@ export function PatientsTable({ patients }: Props) {
   const onClickPatient = (patientId: string) => () => navigate(`/patient-manager/${patientId}`);
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-box border border-base-content/10 px-4">
       <table className="min-w-full border-collapse">
         <thead>
           <tr>
@@ -34,7 +25,7 @@ export function PatientsTable({ patients }: Props) {
         </thead>
         <tbody>
           {patients.map((patient) => (
-            <tr className="cursor-pointer hover:bg-indigo-900"
+            <tr className="cursor-pointer hover:bg-primary"
               key={patient.id}
               onClick={onClickPatient(patient.id)}
             >

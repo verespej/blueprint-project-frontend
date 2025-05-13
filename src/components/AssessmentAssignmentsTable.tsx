@@ -1,0 +1,52 @@
+import { type TypAssessmentAssignment } from '#src/stores/types';
+import { formatFriendlyDate } from '#src/utils';
+
+interface Props {
+  assessmentAssignments: TypAssessmentAssignment[];
+}
+
+export function AssessmentAssignmentsTable({ assessmentAssignments }: Props) {
+  const onClickAssignment = (_assignmentId: string) => () => {
+    alert('Assignment review coming soon!');
+  }
+
+  return (
+    <div className="overflow-x-auto rounded-box border border-base-content/10 px-4">
+      <table className="min-w-full border-collapse">
+        <thead>
+          <tr>
+            <th className="px-4 py-2 text-left">Assessment</th>
+            <th className="px-4 py-2 text-left">Date assigned</th>
+            <th className="px-4 py-2 text-left">Date completed</th>
+            <th className="px-4 py-2 text-left">Link for patient</th>
+          </tr>
+        </thead>
+        <tbody>
+          {assessmentAssignments.map((assignment) => (
+            <tr className="cursor-pointer hover:bg-primary"
+              key={assignment.id}
+              onClick={onClickAssignment(assignment.id)}
+            >
+              <td className="border-t px-4 py-2">
+                {assignment.assessmentDisplayName} ({assignment.assessmentFullName})
+              </td>
+              <td className="border-t px-4 py-2">
+                {formatFriendlyDate(assignment.sentAt)}
+              </td>
+              <td className="border-t px-4 py-2">
+                {
+                  assignment.submittedAt
+                  ? formatFriendlyDate(assignment.submittedAt)
+                  : 'N/A'
+                }
+              </td>
+              <td className="border-t px-4 py-2">
+                {`TODO://assignments/${assignment.slug}`}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

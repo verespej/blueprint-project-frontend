@@ -18,6 +18,13 @@ import {
   type TypFetchStatus,
 } from './types';
 
+export function getFetchKeyForLoadAssessmentAssignments(
+  providerId: string,
+  patientId: string,
+): string {
+  return `${providerId}_${patientId}`;
+}
+
 export interface AssessmentsState {
   errorMessageForLoadAssessmentSummaries: string | null;
   fetchStatusForLoadAssessmentSummaries: TypFetchStatus;
@@ -27,8 +34,8 @@ export interface AssessmentsState {
   fetchStatusesByIdForLoadFullAssessment: Record<string, TypFetchStatus>;
   fullAssessmentsById: Record<string, TypAssessment>;
 
-  errorMessageForLoadAssessmentAssignments: string | null;
-  fetchStatusForLoadAssessmentAssignments: TypFetchStatus;
+  errorMessageByFetchKeyForLoadAssessmentAssignments: Record<string, string | null>;
+  fetchStatusByFetchKeyForLoadAssessmentAssignments: Record<string, TypFetchStatus>;
   assessmentAssignmentsById: Record<string, TypAssessmentAssignment>;
 
   errorMessageForAssignAssessment: string | null;
@@ -51,8 +58,8 @@ export const useAssessmentsStore = create<AssessmentsState>()(
     fetchStatusesByIdForLoadFullAssessment: {},
     fullAssessmentsById: {},
 
-    errorMessageForLoadAssessmentAssignments: null,
-    fetchStatusForLoadAssessmentAssignments: FETCH_STATUSES.INITIAL,
+    errorMessageByFetchKeyForLoadAssessmentAssignments: {},
+    fetchStatusByFetchKeyForLoadAssessmentAssignments: {},
     assessmentAssignmentsById: {},
 
     errorMessageForAssignAssessment: null,
@@ -135,15 +142,37 @@ export const useAssessmentsStore = create<AssessmentsState>()(
     },
 
     loadAssessmentAssignments: async (providerId, patientId, forceReload = false) => {
-      const { fetchStatusForLoadAssessmentAssignments } = get();
-      if (fetchStatusForLoadAssessmentAssignments === FETCH_STATUSES.PENDING) {
+      const fetchKey = getFetchKeyForLoadAssessmentAssignments(providerId, patientId);
+
+      const status = get().fetchStatusByFetchKeyForLoadAssessmentAssignments[fetchKey];
+
+      if (status === FETCH_STATUSES.PENDING) {
         return;
       }
-      if (fetchStatusForLoadAssessmentAssignments === FETCH_STATUSES.COMPLETE && !forceReload) {
+      if (status === FETCH_STATUSES.COMPLETE && !forceReload) {
         return;
       }
 
-      set({ fetchStatusForLoadAssessmentAssignments: FETCH_STATUSES.PENDING });
+      const setAssessmentAssignments = (additionalAssessmentAssignments: TypAssessmentAssignment[]) => set({
+        assessmentAssignmentsById: {
+          ...get().assessmentAssignmentsById,
+          ...keyBy(additionalAssessmentAssignments, 'id'),
+        },
+      });
+      const setError = (newErrorMsg: string | null) => set({
+        errorMessageByFetchKeyForLoadAssessmentAssignments: {
+          ...get().errorMessageByFetchKeyForLoadAssessmentAssignments,
+          [fetchKey]: newErrorMsg,
+        },
+      });
+      const setStatus = (newStatus: TypFetchStatus) => set({
+        fetchStatusByFetchKeyForLoadAssessmentAssignments: {
+          ...get().fetchStatusByFetchKeyForLoadAssessmentAssignments,
+          [fetchKey]: newStatus,
+        },
+      });
+
+      setStatus(FETCH_STATUSES.PENDING);
       const url = `${API_BASE_URL}/v1/providers/${providerId}/patients/${patientId}/assessments`;
       const res = await fetch(url);
 
@@ -151,20 +180,16 @@ export const useAssessmentsStore = create<AssessmentsState>()(
         let errorMessage = res.status === StatusCodes.NOT_FOUND || res.status === StatusCodes.FORBIDDEN
           ? "The requested action isn't permitted"
           : GENERIC_SYSTEM_ERR_MSG;
-        set({
-          errorMessageForLoadAssessmentAssignments: errorMessage,
-          fetchStatusForLoadAssessmentAssignments: FETCH_STATUSES.ERROR,
-        });
+        setError(errorMessage);
+        setStatus(FETCH_STATUSES.ERROR);
         throw new Error(errorMessage);
       }
 
       const payload = await res.json();
       const assignments: TypAssessmentAssignment[] = payload.data.assessmentInstances;
-      set({
-        errorMessageForLoadAssessmentAssignments: null,
-        fetchStatusForLoadAssessmentAssignments: FETCH_STATUSES.COMPLETE,
-        assessmentAssignmentsById: keyBy(assignments, 'id'),
-      });
+      setAssessmentAssignments(assignments);
+      setError(null);
+      setStatus(FETCH_STATUSES.COMPLETE);
     },
 
     assignAssessment: async (providerId, patientId, assessmentId) => {
