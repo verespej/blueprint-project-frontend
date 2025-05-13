@@ -4,8 +4,10 @@ import { DashboardLayout } from './components/DashboardLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
+import { MyPatients } from './pages/MyPatients';
 import { NotFound } from './pages/NotFound';
 import { PatientHome } from './pages/PatientHome';
+import { PatientManager } from './pages/PatientManager';
 import { ProviderHome } from './pages/ProviderHome';
 
 export function App() {
@@ -16,8 +18,10 @@ export function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
+          <Route path="/my-patients"  element={<MyPatients />} />
           <Route path="/provider" element={<ProviderHome />} />
           <Route path="/patient"  element={<PatientHome />} />
+          <Route path="/patient-manager/:patientId" element={<PatientManager />} />
         </Route>
       </Route>
 

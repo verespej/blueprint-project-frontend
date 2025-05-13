@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router'
 
-import {
-  useAuthStore,
-  type AuthState,
-  type User,
-} from '#src/stores/auth-store';
+import { useAuthStore, type AuthState } from '#src/stores/auth-store';
+import { type TypUser } from '#src/stores/types';
 
 export function Login() {
   const login = useAuthStore((s: AuthState) => s.login);
@@ -17,7 +14,7 @@ export function Login() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const user: User = await login(email, password);
+      const user: TypUser = await login(email, password);
       const dashboardPath = user.type === 'provider' ? '/provider' : '/patient';
       navigate(dashboardPath);
     } catch (err: any) {

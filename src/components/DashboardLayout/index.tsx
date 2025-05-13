@@ -1,11 +1,8 @@
-import { Link, Outlet } from 'react-router';
+import { Outlet } from 'react-router';
 
 import logo from '#src/assets/logo.png'
-import {
-  type AuthState,
-  useAuthStore,
-  USER_TYPES,
-} from '#src/stores/auth-store';
+import { useAuthStore } from '#src/stores/auth-store';
+import { USER_TYPES } from '#src/stores/constants';
 
 import { PatientNavLinks } from './PatientNavLinks';
 import { ProviderNavLinks } from './ProviderNavLinks';
@@ -20,8 +17,8 @@ export function DashboardLayout() {
         <h2 className="text-xl font-bold mb-6">
           My Blooprint
         </h2>
-        { user.type === USER_TYPES.PATIENT && <PatientNavLinks /> }
-        { user.type === USER_TYPES.PROVIDER && <ProviderNavLinks /> }
+        { user?.type === USER_TYPES.PATIENT && <PatientNavLinks /> }
+        { user?.type === USER_TYPES.PROVIDER && <ProviderNavLinks /> }
         <button className="mt-auto btn btn-primary" onClick={logout}>
           Sign out
         </button>

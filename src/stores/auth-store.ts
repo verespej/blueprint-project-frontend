@@ -2,26 +2,20 @@ import { StatusCodes } from 'http-status-codes';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { HEADER_NAMES, HTTP_METHODS, MIME_TYPES } from './constants';
-
-export const USER_TYPES = {
-  PATIENT: 'patient',
-  PROVIDER: 'provider',
-} as const;
-
-export interface User {
-  email: string;
-  familyName: string;
-  givenName: string;
-  id: string;
-  type: 'patient' | 'provider';
-}
+import {
+  API_BASE_URL,
+  GENERIC_SYSTEM_ERR_MSG,
+  HEADER_NAMES,
+  HTTP_METHODS,
+  MIME_TYPES,
+} from './constants';
+import { type TypUser } from './types';
 
 export interface AuthState {
-  user: User | null;
+  user: TypUser | null;
 
-  login: (email: string, password: string) => Promise<User>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<TypUser>;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -30,7 +24,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
 
       login: async (email, password) => {
-        const loginUrl = `${import.meta.env.VITE_API_BASE_URL}/session`;
+        const loginUrl = `${API_BASE_URL}/v1/sessions`;
         const res = await fetch(loginUrl, {
           method: HTTP_METHODS.POST,
           headers: { [HEADER_NAMES.CONTENT_TYPE]: MIME_TYPES.APP_JSON },
@@ -41,11 +35,11 @@ export const useAuthStore = create<AuthState>()(
           if (res.status === StatusCodes.NOT_FOUND || res.status === StatusCodes.UNAUTHORIZED) {
             throw new Error('Unknown user or incorrect password');
           }
-          throw new Error('System error: Please try again. If this error persists, please contact support at support@blooprint.demo.');
+          throw new Error(GENERIC_SYSTEM_ERR_MSG);
         }
 
         const payload = await res.json();
-        const user: User = payload.data.user;
+        const user: TypUser = payload.data.user;
 
         set({ user });
 
@@ -53,7 +47,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        const logoutUrl = `${import.meta.env.VITE_API_BASE_URL}/session`;
+        const logoutUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/sessions`;
         const res = await fetch(logoutUrl, { method: HTTP_METHODS.DELETE });
 
         if (!res.ok) {
