@@ -17,8 +17,8 @@ export function Login() {
       const user: TypUser = await login(email, password);
       const dashboardPath = user.type === 'provider' ? '/provider' : '/patient';
       navigate(dashboardPath);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert(String(err));
     }
   };
 
