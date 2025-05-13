@@ -10,7 +10,7 @@ interface Props {
 export function PatientsTable({ patients }: Props) {
   const navigate = useNavigate();
 
-  const onClickPatient = (patientId: string) => () => navigate(`/patient-manager/${patientId}`);
+  const onClickPatient = (patientId: string) => () => navigate(`/my-patients/${patientId}`);
 
   return (
     <div className="overflow-x-auto rounded-box border border-base-content/10 px-4">
