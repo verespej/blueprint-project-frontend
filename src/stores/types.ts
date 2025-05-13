@@ -3,6 +3,10 @@ import {
   USER_TYPES,
 } from './constants';
 
+export type TypErrorResponse = {
+  errorMessage: string;
+}
+
 export type TypFetchStatus = typeof FETCH_STATUSES[
   keyof typeof FETCH_STATUSES
 ];
@@ -63,6 +67,7 @@ export interface TypAssessment {
 
 export interface TypAssessmentAssignment {
   assessmentId: string;
+  id: string;
   patientId: string;
   providerId: string;
   sentAt: string;

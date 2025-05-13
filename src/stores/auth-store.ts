@@ -11,6 +11,7 @@ import {
 } from './constants';
 import { type TypUser } from './types';
 
+// TODO: Implement fetch status pattern here
 export interface AuthState {
   user: TypUser | null;
 

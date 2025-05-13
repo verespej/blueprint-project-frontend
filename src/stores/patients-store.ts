@@ -1,3 +1,4 @@
+import { StatusCodes } from 'http-status-codes';
 import { keyBy } from 'lodash';
 import { create } from 'zustand';
 
@@ -36,8 +37,12 @@ export const usePatientsStore = create<PatientsState>()(
       const url = `${API_BASE_URL}/v1/providers/${providerId}/patients`;
       const res = await fetch(url);
       if (!res.ok) {
-        set({ errorMessage: GENERIC_SYSTEM_ERR_MSG, fetchStatus: FETCH_STATUSES.ERROR });
-        throw new Error(GENERIC_SYSTEM_ERR_MSG);
+        let errorMessage = GENERIC_SYSTEM_ERR_MSG;
+        if (res.status === StatusCodes.NOT_FOUND) {
+          errorMessage = 'Unknown provider';
+        }
+        set({ errorMessage, fetchStatus: FETCH_STATUSES.ERROR });
+        throw new Error(errorMessage);
       }
 
       const payload = await res.json();

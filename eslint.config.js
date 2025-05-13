@@ -48,9 +48,20 @@ export default [
     rules: {
       ...tsPlugin.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
+      ],
+
+      'no-unused-vars': 'off', // Use custom rule below to ignore names starting with "_"
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
       ],
     },
     settings: {
