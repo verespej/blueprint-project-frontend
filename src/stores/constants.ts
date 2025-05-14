@@ -20,6 +20,7 @@ export const USER_TYPES = {
   PROVIDER: 'provider',
 } as const;
 
+export const GENERIC_NETWORK_ERR_MSG = 'This app is unable to contact the service provider. Please verify internet connectivity. If this error continues to occur, please contact support at support@blooprint.demo.';
 export const GENERIC_SYSTEM_ERR_MSG = 'An unexpected error occurred. Please try the last action again. If this error continues to occur, please contact support at support@blooprint.demo.';
 
 export const FETCH_STATUSES = {

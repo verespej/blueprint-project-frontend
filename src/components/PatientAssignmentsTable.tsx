@@ -13,6 +13,14 @@ export function PatientAssignmentsTable({ assignments, onClickActionButton }: Pr
     }
   }
 
+  const getTaskName = (assignment: TypAssessmentAssignment): string => {
+    let taskName = `Complete ${assignment.assessmentDisplayName}`;
+    if (!taskName.toUpperCase().endsWith('QUESTIONNAIRE')) {
+      taskName += ' questionnaire';
+    }
+    return taskName;
+  }
+
   return (
     <div className="overflow-x-auto rounded-box border border-base-content/10 px-4">
       <table className="min-w-full border-collapse">
@@ -28,7 +36,7 @@ export function PatientAssignmentsTable({ assignments, onClickActionButton }: Pr
           {assignments.map((assignment) => (
             <tr key={assignment.id}>
               <td className="border-t px-4 py-2">
-                Complete questionairre
+                {getTaskName(assignment)}
               </td>
               <td className="border-t px-4 py-2">
                 {assignment.providerGivenName} {assignment.providerFamilyName}

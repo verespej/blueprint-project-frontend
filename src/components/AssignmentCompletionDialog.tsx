@@ -168,7 +168,10 @@ export function AssignmentCompletionDialog({
     submitButtonDisabled = true;
   }
 
-  const assessmentDisplayName = assessment?.content?.displayName;
+  let assessmentDisplayName = assessment?.content?.displayName;
+  if (assessmentDisplayName && !assessmentDisplayName.toUpperCase().endsWith('QUESTIONNAIRE')) {
+    assessmentDisplayName += ' questionnaire';
+  }
 
   return (
     <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
@@ -186,7 +189,7 @@ export function AssignmentCompletionDialog({
         {showQuestions && answeredQuestionsCount < totalQuestionsCount && (
           <>
             <div className="mb-2 font-semibold mr-4">
-              {assessmentDisplayName} Questionairre:
+              {assessmentDisplayName}:
               Question {answeredQuestionsCount + 1} of {totalQuestionsCount}
             </div>
             <progress className="progress progress-primary mb-4"

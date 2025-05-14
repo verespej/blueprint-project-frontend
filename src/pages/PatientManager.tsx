@@ -113,7 +113,7 @@ export function PatientManager() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-3">Assigned assessments</h2>
+        <h2 className="text-2xl font-semibold mb-3">Patient assignments</h2>
         {statusForLoadAssignments === FETCH_STATUSES.PENDING && 'Loading...'}
         {errorMessageForLoadAssignments && (
           <div className="space-y-4 text-error">
@@ -121,7 +121,10 @@ export function PatientManager() {
             <p>{errorMessageForLoadPatients}</p>
           </div>
         )}
-        <ProviderAssignmentsTable assignments={assignments} />
+        {assignments.length < 1 && 'No assignments yet'}
+        {assignments.length > 0 && (
+          <ProviderAssignmentsTable assignments={assignments} />
+        )}
       </section>
     </div>
   );

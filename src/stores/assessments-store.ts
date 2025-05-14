@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import {
   API_BASE_URL,
   FETCH_STATUSES,
+  GENERIC_NETWORK_ERR_MSG,
   GENERIC_SYSTEM_ERR_MSG,
   HEADER_NAMES,
   HTTP_METHODS,
@@ -125,8 +126,17 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       }
  
       set({ fetchStatusForLoadAssessmentSummaries: FETCH_STATUSES.PENDING });
-      const url = `${API_BASE_URL}/v1/assessments`;
-      const res = await fetch(url);
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/assessments`;
+        res = await fetch(url);
+      } catch (error) {
+        set({
+          errorMessageForLoadAssessmentSummaries: GENERIC_NETWORK_ERR_MSG,
+          fetchStatusForLoadAssessmentSummaries: FETCH_STATUSES.ERROR,
+        });
+        throw error;
+      }
 
       if (!res.ok) {
         set({
@@ -171,8 +181,15 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       });
 
       setStatus(FETCH_STATUSES.PENDING);
-      const url = `${API_BASE_URL}/v1/assessments/${assessmentId}`;
-      const res = await fetch(url);
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/assessments/${assessmentId}`;
+        res = await fetch(url);
+      } catch (error) {
+        setError(GENERIC_NETWORK_ERR_MSG);
+        setStatus(FETCH_STATUSES.ERROR);
+        throw error;
+      }
 
       if (!res.ok) {
         let errorMessage = res.status === StatusCodes.NOT_FOUND
@@ -221,8 +238,15 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       });
 
       setStatus(FETCH_STATUSES.PENDING);
-      const url = `${API_BASE_URL}/v1/providers/${providerId}/patients/${patientId}/assessments`;
-      const res = await fetch(url);
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/providers/${providerId}/patients/${patientId}/assessments`;
+        res = await fetch(url);
+      } catch (error) {
+        setError(GENERIC_NETWORK_ERR_MSG);
+        setStatus(FETCH_STATUSES.ERROR);
+        throw error;
+      }
 
       if (!res.ok) {
         let errorMessage = res.status === StatusCodes.NOT_FOUND || res.status === StatusCodes.FORBIDDEN
@@ -269,8 +293,15 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       });
 
       setStatus(FETCH_STATUSES.PENDING);
-      const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments`;
-      const res = await fetch(url);
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments`;
+        res = await fetch(url);
+      } catch (error) {
+        setError(GENERIC_NETWORK_ERR_MSG);
+        setStatus(FETCH_STATUSES.ERROR);
+        throw error;
+      }
 
       if (!res.ok) {
         let errorMessage = res.status === StatusCodes.NOT_FOUND
@@ -297,12 +328,21 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       }
 
       set({ fetchStatusForAssignAssessment: FETCH_STATUSES.PENDING });
-      const url = `${API_BASE_URL}/v1/providers/${providerId}/patients/${patientId}/assessments`;
-      const res = await fetch(url, {
-        method: HTTP_METHODS.POST,
-        headers: { [HEADER_NAMES.CONTENT_TYPE]: MIME_TYPES.APP_JSON },
-        body: JSON.stringify({ assessmentId }),
-      });
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/providers/${providerId}/patients/${patientId}/assessments`;
+        res = await fetch(url, {
+          method: HTTP_METHODS.POST,
+          headers: { [HEADER_NAMES.CONTENT_TYPE]: MIME_TYPES.APP_JSON },
+          body: JSON.stringify({ assessmentId }),
+        });
+      } catch (error) {
+        set({
+          errorMessageForAssignAssessment: GENERIC_NETWORK_ERR_MSG,
+          fetchStatusForAssignAssessment: FETCH_STATUSES.ERROR,
+        });
+        throw error;
+      }
 
       if (!res.ok) {
         let errorMessage = GENERIC_SYSTEM_ERR_MSG;
@@ -365,8 +405,15 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       });
 
       setStatus(FETCH_STATUSES.PENDING);
-      const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/responses`;
-      const res = await fetch(url);
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/responses`;
+        res = await fetch(url);
+      } catch (error) {
+        setError(GENERIC_NETWORK_ERR_MSG);
+        setStatus(FETCH_STATUSES.ERROR);
+        throw error;
+      }
 
       if (!res.ok) {
         let errorMessage = res.status === StatusCodes.NOT_FOUND || res.status === StatusCodes.UNPROCESSABLE_ENTITY
@@ -398,12 +445,21 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       }
 
       set({ fetchStatusForRecordAssessmentResponse: FETCH_STATUSES.PENDING });
-      const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/responses`;
-      const res = await fetch(url, {
-        method: HTTP_METHODS.POST,
-        headers: { [HEADER_NAMES.CONTENT_TYPE]: MIME_TYPES.APP_JSON },
-        body: JSON.stringify({ answerId, questionId }),
-      });
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/responses`;
+        res = await fetch(url, {
+          method: HTTP_METHODS.POST,
+          headers: { [HEADER_NAMES.CONTENT_TYPE]: MIME_TYPES.APP_JSON },
+          body: JSON.stringify({ answerId, questionId }),
+        });
+      } catch (error) {
+        set({
+          errorMessageForRecordAssessmentResponse: GENERIC_NETWORK_ERR_MSG,
+          fetchStatusForRecordAssessmentResponse: FETCH_STATUSES.ERROR,
+        });
+        throw error;
+      }
 
       if (!res.ok) {
         let errorMessage = GENERIC_SYSTEM_ERR_MSG;
@@ -444,8 +500,17 @@ export const useAssessmentsStore = create<AssessmentsState>()(
       }
 
       set({ fetchStatusForMarkAssignmentComplete: FETCH_STATUSES.PENDING });
-      const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/submissions`;
-      const res = await fetch(url, { method: HTTP_METHODS.POST });
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/submissions`;
+        res = await fetch(url, { method: HTTP_METHODS.POST });
+      } catch (error) {
+        set({
+          errorMessageForMarkAssignmentComplete: GENERIC_NETWORK_ERR_MSG,
+          fetchStatusForMarkAssignmentComplete: FETCH_STATUSES.ERROR,
+        });
+        throw error;
+      }
 
       if (!res.ok) {
         let errorMessage = GENERIC_SYSTEM_ERR_MSG;

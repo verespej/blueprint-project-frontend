@@ -42,7 +42,7 @@ export function PatientsTable({ patients }: Props) {
                 {
                   patient.offboardedAt
                   ? formatFriendlyDate(patient.offboardedAt)
-                  : 'N/A'
+                  : ''
                 }
               </td>
             </tr>

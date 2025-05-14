@@ -41,8 +41,8 @@ export function MyAssignments() {
   );
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-4xl font-bold">
+    <div className="space-y-4">
+      <h1 className="text-3xl font-bold">
         My assignments
       </h1>
 
@@ -51,7 +51,7 @@ export function MyAssignments() {
           Below, you can review assignments from your provider(s).
         </p>
         <p>
-          Take action to complete any that aren't yet complete.
+          Take action to complete any assignments that aren't yet complete.
         </p>
       </section>
 
@@ -59,14 +59,17 @@ export function MyAssignments() {
         <h2 className="text-2xl font-semibold mb-3">Assignments</h2>
         {fetchStatus === FETCH_STATUSES.PENDING && 'Loading...'}
         {errorMessage && (
-          <div className="space-y-4 text-error">
+          <div className="space-y-4 text-error mb-4">
             <p className="font-semibold">Error loading assignments:</p>
             <p>{errorMessage}</p>
           </div>
         )}
-        <PatientAssignmentsTable
-          assignments={assignments}
-          onClickActionButton={onClickAssignmentAction} />
+        {!errorMessage && assignments.length < 1 && 'No assignments yet'}
+        {assignments.length > 0 &&
+          <PatientAssignmentsTable
+            assignments={assignments}
+            onClickActionButton={onClickAssignmentAction} />
+        }
         {assignmentInProgress && (
           <AssignmentCompletionDialog
             assignment={assignmentInProgress}

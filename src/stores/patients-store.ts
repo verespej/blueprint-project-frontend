@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import {
   API_BASE_URL,
   FETCH_STATUSES,
+  GENERIC_NETWORK_ERR_MSG,
   GENERIC_SYSTEM_ERR_MSG,
 } from './constants';
 import { type TypFetchStatus, type TypPatient } from './types';
@@ -34,8 +35,18 @@ export const usePatientsStore = create<PatientsState>()(
       }
 
       set({ fetchStatus: FETCH_STATUSES.PENDING });
-      const url = `${API_BASE_URL}/v1/providers/${providerId}/patients`;
-      const res = await fetch(url);
+      let res;
+      try {
+        const url = `${API_BASE_URL}/v1/providers/${providerId}/patients`;
+        res = await fetch(url);
+      } catch (error) {
+        set({
+          errorMessage: GENERIC_NETWORK_ERR_MSG,
+          fetchStatus: FETCH_STATUSES.ERROR,
+        });
+        throw error;
+      }
+
       if (!res.ok) {
         let errorMessage = GENERIC_SYSTEM_ERR_MSG;
         if (res.status === StatusCodes.NOT_FOUND) {

@@ -34,14 +34,14 @@ export function ProviderAssignmentsTable({ assignments }: Props) {
                 {
                   assignment.sentAt
                   ? formatFriendlyDate(assignment.sentAt)
-                  : 'N/A'
+                  : 'Not assigned'
                 }
               </td>
               <td className="border-t px-4 py-2">
                 {
                   assignment.submittedAt
                   ? formatFriendlyDate(assignment.submittedAt)
-                  : 'N/A'
+                  : 'Not completed'
                 }
               </td>
               <td className="border-t px-4 py-2">
