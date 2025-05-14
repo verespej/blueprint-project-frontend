@@ -21,7 +21,7 @@ export type TypUser = {
   givenName: string;
   id: string;
   type: TypUserType;
-}
+};
 
 export type TypPatient = {
   email: string;
@@ -30,7 +30,7 @@ export type TypPatient = {
   id: string;
   offboardedAt: string;
   onboardedAt: string;
-}
+};
 
 export type TypAssessmentSummary = {
   displayName: string;
@@ -38,32 +38,38 @@ export type TypAssessmentSummary = {
   fullName: string;
   id: string;
   name: string;
-}
+};
+
+export type TypAssessmentQuestion = {
+  displayOrder: number;
+  id: string;
+  title: string;
+};
+
+export type TypAssessmentAnswer = {
+  displayOrder: number;
+  id: string;
+  title: string;
+  value: string;
+};
+
+export type TypAssessmentSection = {
+  answers: TypAssessmentAnswer[];
+  questions: TypAssessmentQuestion[];
+  title: string;
+  type: string;
+};
 
 export type TypAssessment = {
   disorder: string;
+  fullName: string;
   id: string;
   name: string;
-  fullName: string;
   content: {
     displayName: string;
-    sections: {
-      title: string;
-      type: string;
-      answers: {
-        answerId: string;
-        displayOrder: number;
-        title: string;
-        value: string;
-      }[];
-      questions: {
-        displayOrder: number;
-        questionId: string;
-        title: string;
-      }[];
-    },
+    sections: TypAssessmentSection[],
   },
-}
+};
 
 export type TypAssessmentAssignment = {
   assessmentDisplayName: string;
@@ -77,4 +83,11 @@ export type TypAssessmentAssignment = {
   sentAt: string | null;
   slug: string;
   submittedAt: string | null;
-}
+};
+
+export type TypAssessmentResponse = {
+  answerId: string;
+  assessmentInstanceId: string;
+  id: string;
+  questionId: string;
+};

@@ -13,6 +13,7 @@ import {
 import {
   type TypAssessment,
   type TypAssessmentAssignment,
+  type TypAssessmentResponse,
   type TypAssessmentSummary,
   type TypErrorResponse,
   type TypFetchStatus,
@@ -23,6 +24,13 @@ export function getFetchKeyForLoadAssignments(
   patientId: string,
 ): string {
   return `${providerId}_${patientId}`;
+}
+
+export function getFetchKeyForLoadResponses(
+  patientId: string,
+  assignmentId: string,
+): string {
+  return `${patientId}_${assignmentId}`;
 }
 
 export interface AssessmentsState {
@@ -46,11 +54,31 @@ export interface AssessmentsState {
   fetchStatusForAssignAssessment: TypFetchStatus;
   // Note: Updates assessmentAssignmentsById
 
+  errorMessageByFetchKeyForLoadResponses: Record<string, string | null>;
+  fetchStatusByFetchKeyForLoadResponses: Record<string, TypFetchStatus>;
+  assessmentResponsesById: Record<string, TypAssessmentResponse>;
+
+  errorMessageForRecordAssessmentResponse: string | null;
+  fetchStatusForRecordAssessmentResponse: TypFetchStatus;
+  // Note: Updates assessmentResponsesById
+
+  errorMessageForMarkAssignmentComplete: string | null;
+  fetchStatusForMarkAssignmentComplete: TypFetchStatus;
+  // Note: Updates assessmentAssignmentsById
+
   loadAssessmentSummaries: (forceReload?: boolean) => Promise<void>;
   loadFullAssessment: (assessmentId: string) => Promise<void>;
   loadAssignments: (providerId: string, patientId: string, forceReload?: boolean) => Promise<void>;
   loadAllAssignmentsForPatient: (patientId: string, forceReload?: boolean) => Promise<void>;
   assignAssessment: (providerId: string, patientId: string, assessmentId: string) => Promise<boolean>;
+  loadResponses: (patientId: string, assignmentId: string, forceReload?: boolean) => Promise<void>;
+  recordAssessmentResponse: (
+    patientId: string,
+    assignmentId: string,
+    questionId: string,
+    answerId: string,
+  ) => Promise<boolean>;
+  markAssignmentComplete: (patientId: string, assignmentId: string) => Promise<boolean>;
 }
 
 export const useAssessmentsStore = create<AssessmentsState>()(
@@ -73,6 +101,18 @@ export const useAssessmentsStore = create<AssessmentsState>()(
 
     errorMessageForAssignAssessment: null,
     fetchStatusForAssignAssessment: FETCH_STATUSES.INITIAL,
+    // Note: Updates assessmentAssignmentsById
+
+    errorMessageByFetchKeyForLoadResponses: {},
+    fetchStatusByFetchKeyForLoadResponses: {},
+    assessmentResponsesById: {},
+
+    errorMessageForRecordAssessmentResponse: null,
+    fetchStatusForRecordAssessmentResponse: FETCH_STATUSES.INITIAL,
+    // Note: Updates assessmentResponsesById
+
+    errorMessageForMarkAssignmentComplete: null,
+    fetchStatusForMarkAssignmentComplete: FETCH_STATUSES.INITIAL,
     // Note: Updates assessmentAssignmentsById
 
     loadAssessmentSummaries: async (forceReload = false) => {
@@ -293,5 +333,148 @@ export const useAssessmentsStore = create<AssessmentsState>()(
 
       return true;
     },
+
+    loadResponses: async (patientId, assignmentId, forceReload = false) => {
+      const fetchKey = getFetchKeyForLoadResponses(patientId, assignmentId);
+
+      const status = get().fetchStatusByFetchKeyForLoadResponses[fetchKey];
+      if (status === FETCH_STATUSES.PENDING) {
+        return;
+      }
+      if (status === FETCH_STATUSES.COMPLETE && !forceReload) {
+        return;
+      }
+
+      const setAssessmentAssignments = (additionalAssessmentResponses: TypAssessmentResponse[]) => set({
+        assessmentResponsesById: {
+          ...get().assessmentResponsesById,
+          ...keyBy(additionalAssessmentResponses, 'id'),
+        },
+      });
+      const setError = (newErrorMsg: string | null) => set({
+        errorMessageByFetchKeyForLoadResponses: {
+          ...get().errorMessageByFetchKeyForLoadResponses,
+          [fetchKey]: newErrorMsg,
+        },
+      });
+      const setStatus = (newStatus: TypFetchStatus) => set({
+        fetchStatusByFetchKeyForLoadResponses: {
+          ...get().fetchStatusByFetchKeyForLoadResponses,
+          [fetchKey]: newStatus,
+        },
+      });
+
+      setStatus(FETCH_STATUSES.PENDING);
+      const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/responses`;
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        let errorMessage = res.status === StatusCodes.NOT_FOUND || res.status === StatusCodes.UNPROCESSABLE_ENTITY
+          ? "The requested action isn't permitted"
+          : GENERIC_SYSTEM_ERR_MSG;
+        setError(errorMessage);
+        setStatus(FETCH_STATUSES.ERROR);
+        throw new Error(errorMessage);
+      }
+
+      const payload = await res.json();
+      const responses: TypAssessmentResponse[] = payload.data.assessmentResponses;
+      setAssessmentAssignments(responses);
+      setError(null);
+      setStatus(FETCH_STATUSES.COMPLETE);
+    },
+
+    recordAssessmentResponse: async (
+      patientId,
+      assignmentId,
+      questionId,
+      answerId,
+    ) => {
+      // Even though it's reasonable to want to make multiple simultaneous
+      // requests, we prevent it to keep things simple. Allowing multiple
+      // requests creates a lot of edge cases related to request status.
+      if (get().fetchStatusForRecordAssessmentResponse === FETCH_STATUSES.PENDING) {
+        return false;
+      }
+
+      set({ fetchStatusForRecordAssessmentResponse: FETCH_STATUSES.PENDING });
+      const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/responses`;
+      const res = await fetch(url, {
+        method: HTTP_METHODS.POST,
+        headers: { [HEADER_NAMES.CONTENT_TYPE]: MIME_TYPES.APP_JSON },
+        body: JSON.stringify({ answerId, questionId }),
+      });
+
+      if (!res.ok) {
+        let errorMessage = GENERIC_SYSTEM_ERR_MSG;
+        if (res.status === StatusCodes.NOT_FOUND) {
+          errorMessage = "The requested action isn't permitted";
+        }
+        if (res.status === StatusCodes.UNPROCESSABLE_ENTITY) {
+          const payload: TypErrorResponse = await res.json();
+          errorMessage = payload.errorMessage
+        }
+        set({
+          errorMessageForRecordAssessmentResponse: errorMessage,
+          fetchStatusForRecordAssessmentResponse: FETCH_STATUSES.ERROR,
+        });
+        throw new Error(errorMessage);
+      }
+
+      const payload = await res.json();
+      const assessmentResponse: TypAssessmentResponse = payload.data.assessmentResponse;
+      set({
+        errorMessageForRecordAssessmentResponse: null,
+        fetchStatusForRecordAssessmentResponse: FETCH_STATUSES.COMPLETE,
+        assessmentResponsesById: {
+          ...get().assessmentResponsesById,
+          [assessmentResponse.id]: assessmentResponse,
+        },
+      });
+
+      return true;
+    },
+
+    markAssignmentComplete: async (patientId, assignmentId) => {
+      // Even though it's reasonable to want to make multiple simultaneous
+      // requests, we prevent it to keep things simple. Allowing multiple
+      // requests creates a lot of edge cases related to request status.
+      if (get().fetchStatusForMarkAssignmentComplete === FETCH_STATUSES.PENDING) {
+        return false;
+      }
+
+      set({ fetchStatusForMarkAssignmentComplete: FETCH_STATUSES.PENDING });
+      const url = `${API_BASE_URL}/v1/patients/${patientId}/assessments/${assignmentId}/submissions`;
+      const res = await fetch(url, { method: HTTP_METHODS.POST });
+
+      if (!res.ok) {
+        let errorMessage = GENERIC_SYSTEM_ERR_MSG;
+        if (res.status === StatusCodes.NOT_FOUND) {
+          errorMessage = "The requested action isn't permitted";
+        }
+        if (res.status === StatusCodes.UNPROCESSABLE_ENTITY) {
+          const payload: TypErrorResponse = await res.json();
+          errorMessage = payload.errorMessage
+        }
+        set({
+          errorMessageForMarkAssignmentComplete: errorMessage,
+          fetchStatusForMarkAssignmentComplete: FETCH_STATUSES.ERROR,
+        });
+        throw new Error(errorMessage);
+      }
+
+      const payload = await res.json();
+      const assessmentAssignment: TypAssessmentAssignment = payload.data.assessmentInstance;
+      set({
+        errorMessageForMarkAssignmentComplete: null,
+        fetchStatusForMarkAssignmentComplete: FETCH_STATUSES.COMPLETE,
+        assessmentAssignmentsById: {
+          ...get().assessmentAssignmentsById,
+          [assessmentAssignment.id]: assessmentAssignment,
+        },
+      });
+
+      return true;
+    }
   }),
 );

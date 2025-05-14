@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { AssignmentCompletionDialog } from '#src/components/AssignmentCompletionDialog';
 import { PatientAssignmentsTable } from '#src/components/PatientAssignmentsTable';
 import { useAssessmentsStore } from '#src/stores/assessments-store';
 import { useAuthStore } from '#src/stores/auth-store';
@@ -15,7 +16,10 @@ export function MyAssignments() {
     fetchStatusByIdForLoadAllAssignmentsForPatient,
     loadAllAssignmentsForPatient,
   } = useAssessmentsStore();
-  const [_isAssessmentDialogOpen, setIsAssessmentDialogOpen] = useState(false);
+  const [
+    assignmentInProgress,
+    setAssignmentInProgress,
+  ] = useState<TypAssessmentAssignment | null>(null);
 
   useEffect(() => {
     if (patientId) {
@@ -24,10 +28,11 @@ export function MyAssignments() {
   }, [loadAllAssignmentsForPatient, patientId]);
 
   const onClickAssignmentAction = (assignment: TypAssessmentAssignment) => {
-    alert(`Clicked assignment ${assignment.id}: ${assignment.assessmentFullName}`);
-    setIsAssessmentDialogOpen(true);
+    setAssignmentInProgress(assignment);
   }
-  // const onCloseAssessmentDialog = () => setIsAssessmentDialogOpen(false);
+  const onCloseAssessmentDialog = () => {
+    setAssignmentInProgress(null);
+  }
 
   const errorMessage = errorMessageByIdForLoadAllAssignmentsForPatient[patientId];
   const fetchStatus = fetchStatusByIdForLoadAllAssignmentsForPatient[patientId];
@@ -62,6 +67,14 @@ export function MyAssignments() {
         <PatientAssignmentsTable
           assignments={assignments}
           onClickActionButton={onClickAssignmentAction} />
+        {assignmentInProgress && (
+          <AssignmentCompletionDialog
+            assignment={assignmentInProgress}
+            isOpen={Boolean(assignmentInProgress)}
+            onClose={onCloseAssessmentDialog}
+            patientId={patientId}
+          />
+        )}
       </section>
     </div>
   );

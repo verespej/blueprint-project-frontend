@@ -46,7 +46,7 @@ export function PatientAssignmentsTable({ assignments, onClickActionButton }: Pr
                   <button className="btn btn-primary"
                     onClick={onClickActionButton_(assignment)}
                   >
-                    Do assignment
+                    Work on assignment
                   </button>
                 )}
               </td>
