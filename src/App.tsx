@@ -13,6 +13,7 @@ import { PatientHome } from './pages/PatientHome';
 import { PatientManager } from './pages/PatientManager';
 import { ProviderEducation } from './pages/ProviderEducation';
 import { ProviderHome } from './pages/ProviderHome';
+import { QuickAccess } from './pages/QuickAccess';
 
 export function App() {
   return (
@@ -32,6 +33,8 @@ export function App() {
           <Route path="/my-providers" element={<MyProviders />} />
           <Route path="/my-assignments" element={<MyAssignments />} />
           <Route path="/patient-education"  element={<PatientEducation />} />
+
+          <Route path="/quick-access/:slug"  element={<QuickAccess />} />
         </Route>
       </Route>
 

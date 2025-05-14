@@ -10,6 +10,13 @@ export function ProviderAssignmentsTable({ assignments }: Props) {
     alert('Assignment review coming soon!');
   }
 
+  const createQuickLink = (assignment: TypAssessmentAssignment): string => {
+    return new URL(
+      `/quick-access/${assignment.slug}`,
+      window.location.href,
+    ).toString();
+  }
+
   return (
     <div className="overflow-x-auto rounded-box border border-base-content/10 px-4">
       <table className="min-w-full border-collapse">
@@ -18,7 +25,7 @@ export function ProviderAssignmentsTable({ assignments }: Props) {
             <th className="px-4 py-2 text-left">Assessment</th>
             <th className="px-4 py-2 text-left">Date assigned</th>
             <th className="px-4 py-2 text-left">Date completed</th>
-            <th className="px-4 py-2 text-left">Link for patient</th>
+            <th className="px-4 py-2 text-left">Quick link for patient</th>
           </tr>
         </thead>
         <tbody>
@@ -45,7 +52,7 @@ export function ProviderAssignmentsTable({ assignments }: Props) {
                 }
               </td>
               <td className="border-t px-4 py-2">
-                {`TODO://assignments/${assignment.slug}`}
+                {createQuickLink(assignment)}
               </td>
             </tr>
           ))}
