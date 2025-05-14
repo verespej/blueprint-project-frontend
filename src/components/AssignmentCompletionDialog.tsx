@@ -47,6 +47,9 @@ export function AssignmentCompletionDialog({
     markAssignmentComplete,
     fetchStatusForMarkAssignmentComplete,
     errorMessageForMarkAssignmentComplete,
+
+    // For reloading assignments
+    loadAllAssignmentsForPatient,
   } = useAssessmentsStore();
 
   const { assessmentId, id: assignmentId } = assignment;
@@ -59,6 +62,8 @@ export function AssignmentCompletionDialog({
   const errorForLoadResponses = errorMessageByFetchKeyForLoadResponses[fetchKeyForLoadResponses];
 
   const assessment: TypAssessment = fullAssessmentsById[assessmentId];
+
+  const isAssignmentComplete = Boolean(assignment.submittedAt);
 
   useEffect(() => {
     if (!isOpen) {
@@ -115,6 +120,12 @@ export function AssignmentCompletionDialog({
     if (submitted) {
       toast.success('Assignment completed!');
       onClose();
+      // Force reload all assignments since the submission could've
+      // triggered additional assignments.
+      // 1. We intentionally don't call with await - let it run async
+      // 2. We're not worried if it fails - it's not critical for the user
+      //    to see new assignments immediately
+      loadAllAssignmentsForPatient(patientId, true);
     }
   }
 
@@ -142,6 +153,23 @@ export function AssignmentCompletionDialog({
     statusForLoadAssessment === FETCH_STATUSES.COMPLETE &&
     statusForLoadResponses === FETCH_STATUSES.COMPLETE;
 
+  const isMarkCompletePending = fetchStatusForMarkAssignmentComplete === FETCH_STATUSES.PENDING;
+
+  let submitDialogText = '👇 Submit your responses to complete the assignment.';
+  let submitButtonText = 'Submit responses';
+  let submitButtonDisabled = false;
+  if (isMarkCompletePending) {
+    submitButtonText = 'Submitting...';
+    submitButtonDisabled = true;
+  }
+  if (isAssignmentComplete) {
+    submitDialogText = "You've submitted your responses. You can close this dialog.";
+    submitButtonText = 'Already submitted';
+    submitButtonDisabled = true;
+  }
+
+  const assessmentDisplayName = assessment?.content?.displayName;
+
   return (
     <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
       <div className="bg-base-100 rounded-lg p-6 w-full max-w-lg relative">
@@ -157,8 +185,9 @@ export function AssignmentCompletionDialog({
 
         {showQuestions && answeredQuestionsCount < totalQuestionsCount && (
           <>
-            <div className="mb-2 font-semibold">
-              {`Question ${answeredQuestionsCount + 1} of ${totalQuestionsCount}`}
+            <div className="mb-2 font-semibold mr-4">
+              {assessmentDisplayName} Questionairre:
+              Question {answeredQuestionsCount + 1} of {totalQuestionsCount}
             </div>
             <progress className="progress progress-primary mb-4"
               max={totalQuestionsCount}
@@ -188,15 +217,12 @@ export function AssignmentCompletionDialog({
         {showQuestions && !currentQuestion && (
           <>
             <p className="mb-4 text-xl">All questions answered!</p>
-            <p className="mb-6">👇 Submit your responses to complete the assignment.</p>
+            <p className="mb-6">{submitDialogText}</p>
             <button className="btn btn-primary w-full"
-              disabled={fetchStatusForMarkAssignmentComplete === FETCH_STATUSES.PENDING}
+              disabled={submitButtonDisabled}
               onClick={onClickSubmit}
             >
-              {fetchStatusForMarkAssignmentComplete === FETCH_STATUSES.PENDING
-                ? 'Submitting...'
-                : 'Submit responses'
-              }
+              {submitButtonText}
             </button>
           </>
         )}
