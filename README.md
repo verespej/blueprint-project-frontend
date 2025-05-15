@@ -1,44 +1,73 @@
-# Blueprint project frontend
+# Blooprint web app
 
-React app using Vite, Tailwind, and Zustand.
+The Blooprint web app.
 
-To run:
+
+## Getting started
+
+You need to have node.js installed. This app was built and tested using v23. It likely works with other versions, but that hasn't been tested.
+
+First, clone the project and install its dependencies:
+```
+git clone https://github.com/verespej/blueprint-project-frontend.git
+cd blueprint-project-frontend
+npm install
+```
+
+The app can't do anything without the backend, so follow the instructions to run the [Blooprint backend](https://github.com/verespej/blueprint-project-backend/) before proceeding.
+
+Once the backend is up and running, create a config file that tells the app how to reach the backend:
 ```
 echo 'VITE_API_BASE_URL=http://localhost:3000' > .env.local
-npm install
+```
+
+Update the `http://localhost:3000` URL above to whatever the bakend is listening on.
+
+And, finally, you can run the app:
+```
 npm run dev
 ```
 
-## TODO:
+You should see something similar to the following once the server starts:
+```
+  VITE v6.3.5  ready in 524 ms
 
-- There's some redundancy and some refactoring could be beneficial - however, better to wait until sufficient repetition versus premature optimization
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+```
 
-## UX
+You can now open the home page of the app by visiting http://localhost:5173.
 
-1. Direct the patient through each assessment question one by one, displaying only one question at a time
-2. Track each answer provided by the patient
-3. Persist the answers (in the backend)
+TODO: Image
 
-### Question display
 
-Each page or view should display:
-1. The prompt for the user (the title of the first section)
-2. The assessment display_name
-3. The question title
-4. All answer options for the given assessment, as buttons that display the answer title as text
-5. The question number out of the total number of questions in all assessments (e.g. 1 out of 8)
-6. Tapping on an answer option should automatically advance the user to the next question
-7. Across all screens, display a progress bar that udpates with each completed question
+### Seed data
 
-## Project reqs
+The backend setup includes seeding the DB with data. You can find login credentials for a provider user and a patient user in the seed script.
 
-1. Instructions for running the code locally (if not hosted)
-2. Description of the problem and solution
-3. Reasoning behind your technical choices
-4. Describe how you would deploy this as a true production app on the platform of your choice:
-    1. How would ensure the application is highly available and performs well?
-    2. How would you secure it?
-    3. What would you add to make it easier to troubleshoot problems while it is running live?
-5. Trade-offs you might have made, anything you left out, or what you might do differently if you were to spend additional time on the project
-6. Link to other code you're particularly proud of
-7. Link to your resume or public profile
+Use the credentials to log in.
+
+TODO: Image
+
+Once logged in, you can browse around. You'll find an assignment populated by the seed data.
+
+TODO: Image
+
+There're different features for providers and patients. Log in with both so see what's available to each user type.
+
+
+## Development
+
+The app live reloads as you make changes to the code.
+
+Make sure to run type checking and linting as you develop:
+```
+npm run typecheck
+npm run lint
+```
+
+
+## Blueprint exercise
+
+See [BLUEPRINT.md](./BLUEPRINT.md).
