@@ -2,6 +2,8 @@
 
 The Blooprint web app.
 
+![Screenshot 2025-05-14 at 8 50 39 PM](https://github.com/user-attachments/assets/3db12a16-c1bc-4a3f-b46d-ee0e8fbee7a5)
+
 
 ## Getting started
 
@@ -39,7 +41,7 @@ You should see something similar to the following once the server starts:
 
 You can now open the home page of the app by visiting http://localhost:5173.
 
-TODO: Image
+![Screenshot 2025-05-14 at 8 51 14 PM](https://github.com/user-attachments/assets/5c161de4-2373-4aed-b4e5-b86f172cd1c6)
 
 
 ### Seed data
@@ -48,11 +50,11 @@ The backend setup includes seeding the DB with data. You can find login credenti
 
 Use the credentials to log in.
 
-TODO: Image
+![Screenshot 2025-05-14 at 8 51 07 PM](https://github.com/user-attachments/assets/55b18a40-71e7-4a5d-9ea6-288e48108a00)
 
 Once logged in, you can browse around. You'll find an assignment populated by the seed data.
 
-TODO: Image
+![Screenshot 2025-05-14 at 8 50 48 PM](https://github.com/user-attachments/assets/bbcd13a6-ecd7-4278-ad2c-2aad98683102)
 
 There're different features for providers and patients. Log in with both so see what's available to each user type.
 
