@@ -51,12 +51,12 @@ The patient experience allows logged-in patients to:
 
 Here're some technical design choices and reasoning:
 
-- **React**: I have a strong preference for React versus other options because of various foundational properties like JSX and composability, flexibility, etc.
-- **Vite**: I've found Vite to be a great build tool work with React. I've found its defaults to be low-friction. And, it's super fast, reducing wait cycles.
-- **React router**: This is what everyone uses and it gets the job done. I've been frustrated by their breaking changes and subpar migration paths in the past. But, the API's matured over time and solves the routing problem well today.
-- **Tailwind**: I haven't used Tailwind with a large production app, so not sure how it feels at scale. But, I've found it to increase productivity in the small apps where I've used it. I'd like to become familiar with the trade-offs encountered at scale by discussing with someone who has that experience.
-- **Diasy**: Makes Tailwind more useful by providing some freebie styling. It's a productivity increaser.
-- **Zustand**: Zustand's a bit more light-weight than the classic redux pattern. It provides a lot of flexibility in approach allowing one to customize patterns appropriate to the architecture of the app their building. While, I suspect it'd work fine at scale, this is another one where I don't have experience with it at scale and would benefit from being able to chat with someone who's used it at scale.
+- **[React](https://react.dev/)**: I have a strong preference for React versus other options because of various foundational properties like JSX and composability, flexibility, etc.
+- **[Vite](https://vite.dev/)**: I've found Vite to be a great build tool work with React. I've found its defaults to be low-friction. And, it's super fast, reducing wait cycles.
+- **[React router](https://reactrouter.com/)**: This is what everyone uses and it gets the job done. I've been frustrated by their breaking changes and subpar migration paths in the past. But, the API's matured over time and solves the routing problem well today.
+- **[Tailwind](https://tailwindcss.com/)**: I haven't used Tailwind with a large production app, so not sure how it feels at scale. But, I've found it to increase productivity in the small apps where I've used it. I'd like to become familiar with the trade-offs encountered at scale by discussing with someone who has that experience.
+- **[diasyUI](https://daisyui.com/)**: Makes Tailwind more useful by providing some freebie styling. It's a productivity increaser.
+- **[Zustand](https://zustand.docs.pmnd.rs/)**: Zustand's a bit more light-weight than the classic redux pattern. It provides a lot of flexibility in approach allowing one to customize patterns appropriate to the architecture of the app their building. While, I suspect it'd work fine at scale, this is another one where I don't have experience with it at scale and would benefit from being able to chat with someone who's used it at scale.
 
 If I were to spend additional time, I'd work on items in [TODO.md](./TODO.md).
 
@@ -95,8 +95,8 @@ All of these would require evaluation of benefit, risk, and time requirement, th
 ## Personal links
 
 - Profiles:
-    - [LinkedIn](https://www.linkedin.com/in/verespej/)
-    - [X](https://x.com/HVerespej)
+    - [LinkedIn: verespej](https://www.linkedin.com/in/verespej/)
+    - [X: hverespej](https://x.com/hverespej)
 - Other code:
     - Other code worth seeing is in private repos
     - Feel free to request access and send me your github username
